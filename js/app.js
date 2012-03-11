@@ -73,11 +73,21 @@ var Content = Backbone.View.extend({
 	    setTimeout(this._updateScrollbar, 500)
 	}
 })
-
+var SearchView = Backbone.View.extend({
+    events: {
+        "submit": "doSearch"  
+    },
+    doSearch: function( event ){
+        // Button clicked, you can access the element that was clicked with event.currentTarget
+        alert( "Search for " + this.$el.find("input").val() );
+        return false;
+    }
+}); 
 
 
 $(function(){
 	var sb = new Sidebar({ el: "#nav", content: "#content-scroll", arrow: "#arrow", items: "#nav-content" });
 	sb.toggleExpand(null, false, 0);	
-	var content = new Content({ el: "content-scroll" });
+	var content = new Content();
+	var search = new SearchView({ el: "#search-form" });
 })
