@@ -1,5 +1,5 @@
 (function() {
-  var HomeController, HomeView, ShowTrackView, Track, TrackCollection, app;
+  var HomeController, SearchResultsView, Track, TrackCollection, app;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; }, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   app = {
@@ -35,7 +35,7 @@
     };
 
     Track.prototype.getAlbumImage = function() {
-      return this.get('album');
+      return "images/noAlbumImage.png";
     };
 
     Track.prototype.getArtist = function() {
@@ -64,106 +64,68 @@
 
     TrackCollection.prototype.model = Track;
 
-    function TrackCollection() {
-      TrackCollection.__super__.constructor.apply(this, arguments);
-      this.add($PLAYLIST_JSON);
+    TrackCollection.prototype.keyword = "";
+
+    TrackCollection.prototype.page = 1;
+
+    TrackCollection.prototype.url = function() {
+      return "http://www.playlist.com/async/searchbeta/tracks?searchfor=" + this.keyword + "&page=" + this.page;
+    };
+
+    function TrackCollection(options) {
+      this.success = __bind(this.success, this);      TrackCollection.__super__.constructor.apply(this, arguments);
+      this.reset();
+      this.keyword = options.keyword;
+      this.page = options.page;
+      this.fetch({
+        type: "GET",
+        dataType: "jsonp",
+        complete: this.success
+      });
     }
+
+    TrackCollection.prototype.success = function(data) {
+      return this.add(PPL.search.trackdata);
+    };
 
     return TrackCollection;
 
   })();
 
-  this.Tracks = new TrackCollection;
+  SearchResultsView = (function() {
 
-  ShowTrackView = (function() {
+    __extends(SearchResultsView, Backbone.View);
 
-    __extends(ShowTrackView, Backbone.View);
-
-    function ShowTrackView() {
-      this.render = __bind(this.render, this);      ShowTrackView.__super__.constructor.apply(this, arguments);
-      console.log("showTracKView");
+    function SearchResultsView() {
+      this.render = __bind(this.render, this);      SearchResultsView.__super__.constructor.apply(this, arguments);
       this.el = app.activePage();
-      this.template = _.template('<a data-role="button" data-theme="b">Download</a>\n<a data-role="button">Find More By This Artist</a>\n<a data-role="button">Share Music Link</a>\n<a href="index.html" data-role="button" data-rel="back">Go Back</a>');
-      this.model.bind('change', this.render);
+      this.template = ich.tracks;
+      this.tracks = new TrackCollection({
+        keyword: this.options.keyword,
+        page: this.options.page
+      });
+      this.tracks.on("add", this.render);
       this.render();
     }
 
-    ShowTrackView.prototype.render = function() {
-      this.el.find('h1').text(this.model.getFullName());
-      this.el.find('.ui-content').html(this.template({
-        Track: this.model
-      }));
+    SearchResultsView.prototype.render = function() {
+      this.el.find('#content-body').html(this.template(this.tracks));
       return app.reapplyStyles(this.el);
     };
 
-    return ShowTrackView;
+    return SearchResultsView;
 
   })();
-
-  HomeView = (function() {
-
-    __extends(HomeView, Backbone.View);
-
-    function HomeView() {
-      this.render = __bind(this.render, this);      HomeView.__super__.constructor.apply(this, arguments);
-      this.el = app.activePage();
-      this.template = _.template('<div>\n\n<ul data-role="listview" data-theme="c" data-filter="true">\n  <% tracks.each(function(track){ %>\n    <li>\n      <a href="<%= track.getSongUrl() %>">\n        <img src="<%= track.getAlbumImage() %>" >\n        <h3><%= track.getArtist() %></h3>\n        <p><%= track.getTitle() %></p>\n        <span class="ui-li-count"><%= track.getDurationFormatted() %></span>\n      </a>  \n      <a href="#tracks-<%= track.cid %>">More Options</a>     \n    </li>          \n  <% }); %>\n</ul>\n\n</div>');
-      this.render();
-    }
-
-    HomeView.prototype.render = function() {
-      this.el.find('.ui-content').html(this.template({
-        tracks: Tracks
-      }));
-      return app.reapplyStyles(this.el);
-    };
-
-    return HomeView;
-
-  })();
-
-  app.homeController = new $.mobile.Router({
-    "#search": {
-      handler: "viewTracks",
-      events: "bc,c,i,bs,s,bh,h"
-    },
-    "#track-(?:[?/](.*))?": {
-      handler: "view-track",
-      events: "bc,c,i,bs,s,bh,h"
-    },
-    "#home": {
-      handler: function(type) {
-        var _base;
-        console.log("index called");
-        return (_base = app.views)['home'] || (_base['home'] = new HomeView);
-      },
-      events: "h,s"
-    }
-  }, {
-    viewTracks: function(type, match, ui) {
-      return console.log(arguments);
-    },
-    show: function(type, match, ui) {
-      var _base, _name;
-      console.log(arguments);
-      return (_base = app.views)[_name = "track-" + cid] || (_base[_name] = new ShowTrackView({
-        model: Tracks.getByCid(cid)
-      }));
-    }
-  }, {
-    defaultHandler: function(type, ui, page) {
-      return console.log("Default handler called due to unknown route (" + type + ", " + ui + ", " + page + ")");
-    },
-    defaultHandlerEvents: "s"
-  });
 
   HomeController = (function() {
 
-    __extends(HomeController, Backbone.Controller);
+    __extends(HomeController, Backbone.Router);
 
     HomeController.prototype.routes = {
-      "#venues-:cid": "show",
-      "#home": "home"
+      "home": "home",
+      "search-:keyword": "search",
+      "search-:keyword-:page": "search",
+      "track-:trackid": "show"
     };
 
     function HomeController() {
@@ -173,21 +135,29 @@
 
     HomeController.prototype.home = function() {
       var _base;
-      console.log("home");
       return (_base = this._views)['home'] || (_base['home'] = new HomeView);
     };
 
-    HomeController.prototype.show = function(cid) {
+    HomeController.prototype.search = function(keyword, page) {
       var _base, _name;
-      console.log("show");
-      return (_base = this._views)[_name = "venues-" + cid] || (_base[_name] = new ShowVenueView({
-        model: Venues.getByCid(cid)
+      page || (page = 1);
+      return (_base = this._views)[_name = "search-" + keyword + "-" + page] || (_base[_name] = new SearchResultsView({
+        keyword: keyword,
+        page: page
       }));
     };
+
+    HomeController.prototype.show = function(cid) {};
 
     return HomeController;
 
   })();
+
+  app.homeController = new HomeController();
+
+  $(document).ready(function() {
+    return app.homeController.search("Muse");
+  });
 
   this.app = app;
 

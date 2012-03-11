@@ -1,6 +1,30 @@
+var RemoteLogger = {
+	logEvent: function(string,data){
+	}
+}
+var PPL = new (function(){
+	//these are placeholder objects that must be here for playlist.com's api
+	this.user = {};
+	this.player = {
+		playWhenReady: function(){}
+	};
+	
+	this.search = new (function(){
+		//This function gets called automatically due to the Playlist.com API
+		this.searchResultsFn = function(){
+		
+		}
+		this.searchVersion = "",
+		this.searchTerm = "";
+		this.trackdata = null;
+		this.currentPage = 1;
+	})()
+})() 
+
 var Sidebar = Backbone.View.extend({
 	speed: 200,
     initialize: function (){ 
+    	this.el = $(this.options.el);
     	this.content = $(this.options.content);
     	this.arrow = $(this.options.arrow);
     	this.items = $(this.options.items);
@@ -11,13 +35,13 @@ var Sidebar = Backbone.View.extend({
     },
     toggleExpand: function(event, show, speed){
     	if (show || this.items.is(":visible")){
-    		this.$el.animate({width:30}, speed || this.speed)
+    		this.el.animate({width:30}, speed || this.speed)
     		this.items.fadeOut(30);
     		this.arrow.switchClass('arrowLeft','arrowRight',30);
 	    	this.content.animate({left:31}, speed || this.speed);
     	}
     	else {
-    		this.$el.animate({width:155}, speed || this.speed)
+    		this.el.animate({width:155}, speed || this.speed)
     		this.items.delay(170).fadeIn(100);
     		this.arrow.switchClass('arrowRight','arrowLeft',30);
 	    	this.content.animate({left:156}, speed || this.speed);
@@ -79,7 +103,7 @@ var SearchView = Backbone.View.extend({
     },
     doSearch: function( event ){
         // Button clicked, you can access the element that was clicked with event.currentTarget
-        alert( "Search for " + this.$el.find("input").val() );
+        alert( "Search for " + this.el.find("input").val() );
         return false;
     }
 }); 
