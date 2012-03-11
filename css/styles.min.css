@@ -86,23 +86,23 @@ img {
 }
 #player {
     height: 4px;
-    background: url("../images/v3/bg-player-background.png") top left repeat-x;
+    background: url("../images/bg-player-background.png") top left repeat-x;
     border-bottom: 1px solid #3f3f3f;
 }
 #player .played {
     height: 4px;
-    background: url("../images/v3/bg-player-played.png") top left repeat-x;
+    background: url("../images/bg-player-played.png") top left repeat-x;
 }
 #now-playing {
     width: 371px;
     height: 70px;
     margin: 0 auto 7px;
     margin-top: -19px;
-    background: url("../images/v3/bg-now-playing.png") no-repeat;
+    background: url("../images/bg-now-playing.png") no-repeat;
     position: relative;
 }
 #now-playing .stopped {
-    background: url("../images/v3/bg-now-playing-stopped.png") no-repeat;
+    background: url("../images/bg-now-playing-stopped.png") no-repeat;
     width: 371px;
     height: 70px;
     position: absolute;
@@ -125,16 +125,16 @@ img {
     padding-top: 13px;
 }
 #now-playing .station-volume a.volume-up {
-    background: url("../images/v3/sprite1.png") 0 -5313px no-repeat;
+    background: url("../images/sprite1.png") 0 -5313px no-repeat;
 }
 #now-playing .station-volume a.volume-up:hover {
-    background: url("../images/v3/sprite1.png") 0 -5250px no-repeat;
+    background: url("../images/sprite1.png") 0 -5250px no-repeat;
 }
 #now-playing .station-volume a.volume-down {
-    background: url("../images/v3/sprite1.png") 0 -5190px no-repeat;
+    background: url("../images/sprite1.png") 0 -5190px no-repeat;
 }
 #now-playing .station-volume a.volume-down:hover {
-    background: url("../images/v3/sprite1.png") 0 -5129px no-repeat;
+    background: url("../images/sprite1.png") 0 -5129px no-repeat;
 }
 #now-playing .station {
     float: left;
@@ -216,16 +216,16 @@ img {
     padding-top: 10px;
 }
 #now-playing .station-actions a.share {
-    background: url("../images/v3/sprite1.png") 0 -5067px no-repeat;
+    background: url("../images/sprite1.png") 0 -5067px no-repeat;
 }
 #now-playing .station-actions a.share:hover {
-    background: url("../images/v3/sprite1.png") 0 -5005px no-repeat;
+    background: url("../images/sprite1.png") 0 -5005px no-repeat;
 }
 #now-playing .station-actions a.favorite {
-    background: url("../images/v3/sprite1.png") 0 -4944px no-repeat;
+    background: url("../images/sprite1.png") 0 -4944px no-repeat;
 }
 #now-playing .station-actions a.favorite.active, #now-playing .station-actions a.favorite:hover {
-    background: url("../images/v3/sprite1.png") 0 -4822px no-repeat;
+    background: url("../images/sprite1.png") 0 -4822px no-repeat;
 }
 #station-artists-includes a {
     color: #26a4cf;
@@ -251,13 +251,13 @@ img {
     padding-left: 5px;
     width: 48px;
     height: 47px;
-    background: url("../images/v3/sprite1.png") 0 -7287px no-repeat;
+    background: url("../images/sprite1.png") 0 -7287px no-repeat;
 }
 #player-controls .player-like:hover {
-    background: url("../images/v3/sprite1.png") 0 -7190px no-repeat;
+    background: url("../images/sprite1.png") 0 -7190px no-repeat;
 }
 #player-controls .player-like:active {
-    background: url("../images/v3/sprite1.png") 0 -7093px no-repeat;
+    background: url("../images/sprite1.png") 0 -7093px no-repeat;
 }
 #player-controls .player-dislike {
     display: none;
@@ -266,13 +266,13 @@ img {
     float: left;
     width: 48px;
     height: 47px;
-    background: url("../images/v3/sprite1.png") 0 -6996px no-repeat;
+    background: url("../images/sprite1.png") 0 -6996px no-repeat;
 }
 #player-controls .player-dislike:hover {
-    background: url("../images/v3/sprite1.png") 0 -6899px no-repeat;
+    background: url("../images/sprite1.png") 0 -6899px no-repeat;
 }
 #player-controls .player-dislike:active {
-    background: url("../images/v3/sprite1.png") 0 -6802px no-repeat;
+    background: url("../images/sprite1.png") 0 -6802px no-repeat;
 }
 #player-controls .player-pause {
     display: none;
@@ -281,13 +281,13 @@ img {
     float: left;
     width: 68px;
     height: 67px;
-    background: url("../images/v3/sprite1.png") 0 -7618px no-repeat;
+    background: url("../images/sprite1.png") 0 -7618px no-repeat;
 }
 #player-controls .player-pause:hover {
-    background: url("../images/v3/sprite1.png") 0 -7501px no-repeat;
+    background: url("../images/sprite1.png") 0 -7501px no-repeat;
 }
 #player-controls .player-pause:active {
-    background: url("../images/v3/sprite1.png") 0 -7384px no-repeat;
+    background: url("../images/sprite1.png") 0 -7384px no-repeat;
 }
 #player-controls .player-play {
     top: 9px;
@@ -295,26 +295,26 @@ img {
     float: left;
     width: 68px;
     height: 67px;
-    background: url("../images/v3/sprite1.png") 0 -7969px no-repeat;
+    background: url("../images/sprite1.png") 0 -7969px no-repeat;
 }
 #player-controls .player-play:hover {
-    background: url("../images/v3/sprite1.png") 0 -7852px no-repeat;
+    background: url("../images/sprite1.png") 0 -7852px no-repeat;
 }
 #player-controls .player-play:active {
-    background: url("../images/v3/sprite1.png") 0 -7735px no-repeat;
+    background: url("../images/sprite1.png") 0 -7735px no-repeat;
 }
 #player-controls .player-skip {
     top: 20px;
     float: left;
     width: 48px;
     height: 47px;
-    background: url("../images/v3/sprite1.png") 0 -8280px no-repeat;
+    background: url("../images/sprite1.png") 0 -8280px no-repeat;
 }
 #player-controls .player-skip:hover {
-    background: url("../images/v3/sprite1.png") 0 -8183px no-repeat;
+    background: url("../images/sprite1.png") 0 -8183px no-repeat;
 }
 #player-controls .player-skip:active {
-    background: url("../images/v3/sprite1.png") 0 -8086px no-repeat;
+    background: url("../images/sprite1.png") 0 -8086px no-repeat;
 }
 #carousel {
     position: absolute;
@@ -329,7 +329,7 @@ img {
     display: none;
     width: 195px;
     height: 125px;
-    background: url("../images/v3/bg-carousel-actions.png") no-repeat;
+    background: url("../images/bg-carousel-actions.png") no-repeat;
     position: absolute;
     left: 2px;
     top: 1px;
@@ -342,10 +342,10 @@ img {
     float: left;
 }
 #carousel .actions a.back {
-    background: url("../images/v3/bg-carousel-action-left.png") no-repeat 0;
+    background: url("../images/bg-carousel-action-left.png") no-repeat 0;
 }
 #carousel .actions a.next {
-    background: url("../images/v3/bg-carousel-action-right.png") no-repeat 16px;
+    background: url("../images/bg-carousel-action-right.png") no-repeat 16px;
 }
 #carousel .actions a.current-station {
     width: 50%}
@@ -358,7 +358,7 @@ img {
     position: absolute;
     top: 0;
     left: 0;
-    background: url("../images/v3/bg-carousel.png") no-repeat;
+    background: url("../images/bg-carousel.png") no-repeat;
     z-index: 3;
 }
 #carousel ul {
@@ -478,7 +478,7 @@ img {
 }
 #content-header {
     height: 58px;
-    background: url("../images/v3/bg-content-header.png") repeat-x scroll 0 0 transparent;
+    background: url("../images/bg-content-header.png") repeat-x scroll 0 0 transparent;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
@@ -978,7 +978,7 @@ a {
     opacity: 1;
 }
 #nav {
-	background: url("../images/v3/bg-nav.png") repeat-y scroll left top transparent;
+	background: url("../images/bg-nav.png") repeat-y scroll left top transparent;
     position: absolute;
     top: 0;
     bottom: 0;
@@ -987,7 +987,7 @@ a {
     z-index: 2;
 }
 #nav h3 {
-	background: url("../images/v3/bg-nav-header.png") repeat-x scroll left top transparent;
+	background: url("../images/bg-nav-header.png") repeat-x scroll left top transparent;
     margin: 0;
     padding: 0;
     color: #747474;
@@ -1089,7 +1089,7 @@ a {
 
 #volume-popup {
     display: none;
-    /*background: url("../images/v3/bg-volume-container.png") no-repeat;*/
+    /*background: url("../images/bg-volume-container.png") no-repeat;*/
     width: 359px;
     height: 328px;
     position: absolute;
@@ -1105,20 +1105,20 @@ a {
     height: 149px;
 }
 #volume-popup #volume-icon.volume-0 {
-   /* background: url("../images/v3/bg-volume-0.png") no-repeat; */
+   /* background: url("../images/bg-volume-0.png") no-repeat; */
 }
 #volume-popup #volume-icon.volume-33 {
-    /*background: url("../images/v3/bg-volume-33.png") no-repeat;*/
+    /*background: url("../images/bg-volume-33.png") no-repeat;*/
     position: relative;
     top: 18px;
 }
 #volume-popup #volume-icon.volume-66 {
-    /*background: url("../images/v3/bg-volume-66.png") no-repeat;*/
+    /*background: url("../images/bg-volume-66.png") no-repeat;*/
     position: relative;
     top: 18px;
 }
 #volume-popup #volume-icon.volume-100 {
-    /*background: url("../images/v3/bg-volume-100.png") no-repeat;*/
+    /*background: url("../images/bg-volume-100.png") no-repeat;*/
 }
 #volume-popup .volume-ticks {
     width: 252px;
@@ -1163,7 +1163,7 @@ a {
 }
 
 #header {
-	background: url("../images/v3/bg-header.png") repeat scroll left top transparent;
+	background: url("../images/bg-header.png") repeat scroll left top transparent;
     height: 82px;
     border-bottom: 1px solid #1b1b1b;
 }
@@ -1294,10 +1294,10 @@ a {
     text-align: right;
 }
 #collapsible-nav .arrowLeft {
-    background: url("../images/arrowSprites.png") no-repeat scroll center top transparent;
+    background: url("../images/arrow-sprites.png") no-repeat scroll center top transparent;
 } 
 #collapsible-nav .arrowRight {
-    background: url("../images/arrowSprites.png") no-repeat scroll left -30px transparent;
+    background: url("../images/arrow-sprites.png") no-repeat scroll left -30px transparent;
     margin-right: -2px;
 }
 #collapsible-nav .arrow {
