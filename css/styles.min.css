@@ -1300,7 +1300,7 @@ a {
     background: url("../images/arrow-sprites.png") no-repeat scroll left -30px transparent;
     margin-right: -2px;
 }
-#collapsible-nav .arrow {
+#collapsible-nav #arrow {
     display: block;
     float: right;
     line-height: 14px;
