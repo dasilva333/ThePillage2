@@ -4,7 +4,7 @@
 App.Views.HomeView = Backbone.View.extend  
   
   initialize: ->
-
+    
     @template = ich.history
     
     @history = 
@@ -15,11 +15,9 @@ App.Views.HomeView = Backbone.View.extend
         {keyword: "Tool", count: 2}
       ]
     
-  render: =>
-    # Render the content
-    @el = app.activePage()
-        
-    @el.find('#content-body').html @template @history
+  render: -> 
+    
+    @$el.find('#content-body').html @template @history
 
     # A hacky way of reapplying the jquery mobile styles
-    App.reapplyStyles(@el)     
+    App.reapplyStyles(@$el)     

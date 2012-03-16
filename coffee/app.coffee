@@ -12,7 +12,8 @@ window.App =
     el.find('button[data-role="button"]').button();
     el.find('input,textarea').textinput();
     el.page()
-    App.content.updateScrollbar()
+    App.appView.scroller.updateScrollbar()
 
   Views: {}
   Models: {}
+  Routers: {}

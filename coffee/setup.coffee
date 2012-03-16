@@ -23,6 +23,6 @@ $(document).ready ->
   
   App.appView.sidebar.toggle(null, false, 0)
   
-  App.router = new App.Router()
+  App.router = new App.Routers.Router()
   
   Backbone.history.start { pushState: false, root: "/TP2/" }

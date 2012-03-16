@@ -1,4 +1,4 @@
-class App.Router extends Backbone.Router
+class App.Routers.Router extends Backbone.Router
   routes :
     ''                                        : "home"
     "home"                                    : "home"
@@ -15,7 +15,7 @@ class App.Router extends Backbone.Router
     console.log("default?")
     
   home: ->
-    @_views['home'] ||= new App.Views.HomeView
+    @_views['home'] ||= new App.Views.HomeView({ el: App.activePage() }).render()
 
   search: (keyword, page) ->
     page or= 1
