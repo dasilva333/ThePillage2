@@ -1088,7 +1088,7 @@ a {
 
 #volume-popup {
     display: none;
-    /*background: url("../images/bg-volume-container.png") no-repeat;*/
+    background: url("../images/bg-volume-container.png") no-repeat;
     width: 359px;
     height: 328px;
     position: absolute;
@@ -1104,20 +1104,20 @@ a {
     height: 149px;
 }
 #volume-popup #volume-icon.volume-0 {
-   /* background: url("../images/bg-volume-0.png") no-repeat; */
+    background: url("../images/bg-volume-0.png") no-repeat; 
 }
 #volume-popup #volume-icon.volume-33 {
-    /*background: url("../images/bg-volume-33.png") no-repeat;*/
+    background: url("../images/bg-volume-33.png") no-repeat;
     position: relative;
     top: 18px;
 }
 #volume-popup #volume-icon.volume-66 {
-    /*background: url("../images/bg-volume-66.png") no-repeat;*/
+    background: url("../images/bg-volume-66.png") no-repeat;
     position: relative;
     top: 18px;
 }
 #volume-popup #volume-icon.volume-100 {
-    /*background: url("../images/bg-volume-100.png") no-repeat;*/
+    background: url("../images/bg-volume-100.png") no-repeat;
 }
 #volume-popup .volume-ticks {
     width: 252px;
@@ -1317,4 +1317,7 @@ a {
 
 .ui-body-c, .ui-overlay-c {
     text-shadow: none;
+}
+.ui-mobile [data-role="page"], .ui-mobile [data-role="dialog"], .ui-page {
+	bottom: 0;
 }

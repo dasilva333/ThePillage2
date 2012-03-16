@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">	    
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+
+<title>test infinite</title>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.js" type="text/javascript" charset="ISO-8859-1"></script>
+<script type="text/javascript">
+
+/*window.addEventListener("load",function() {
+	setTimeout(function(){
+		window.scrollTo(0, 1);
+	}, 0);
+});*/
+
+$(document).ready(function(){
+	
+	$('#searchResults').html($('#content').html());
+	
+	$('#searchResultsContainer').scroll(function(){
+		var obj = $('#searchResults')
+		obj.click();
+		var scrollTop = $(this).scrollTop();
+		var difference = obj.innerHeight() - $(this).innerHeight();
+
+		if(difference == scrollTop) {
+			loadMoreContent();
+		}
+		
+	})
+})
+
+function loadMoreContent() {
+	
+	$('#searchResults').find('.loadMore').html('loading...');
+	
+	setTimeout(function() {
+						
+		$('#searchResults').find('.loadMore').remove();
+		$('#searchResults').append('<div style="height:3px; background:gray; overflow:hidden;">').append($('#content').html());
+		
+	},1200);
+	
+}
+
+</script>
+</head>
+<body style="background:black;">
+
+<div style="position:absolute; left:2px; top:2px; right:2px; height:77px; background:#EBEBEB; overflow:hidden;">&nbsp;</div>
+
+<div style="position:absolute; left:2px; top:80px; bottom:2px; width:27px; background:#EBEBEB; overflow:hidden; text-align:center; padding-top:5px;">+</div>
+
+<div id="searchResultsContainer" style="position:absolute; left:30px; top:80px; right:2px; bottom:2px; background:#EBEBEB; overflow:auto;">
+	<div id="searchResults">loading...</div>
+</div>
+
+<div id="content" style="display:none;">
+
+	<div style="height:60px; border-top:1px solid gray; line-height:59px; padding-left:16px;">
+		stuff
+	</div>
+	<div style="height:60px; border-top:1px solid gray; line-height:59px; padding-left:16px;">
+		stuff
+	</div>
+	<div style="height:60px; border-top:1px solid gray; line-height:59px; padding-left:16px;">
+		stuff
+	</div>
+	<div style="height:60px; border-top:1px solid gray; line-height:59px; padding-left:16px;">
+		stuff
+	</div>
+	<div style="height:60px; border-top:1px solid gray; line-height:59px; padding-left:16px;">
+		stuff
+	</div>
+	<div style="height:60px; border-top:1px solid gray; line-height:59px; padding-left:16px;">
+		stuff
+	</div>
+	<div style="height:60px; border-top:1px solid gray; line-height:59px; padding-left:16px;">
+		stuff
+	</div>
+	<div style="height:60px; border-top:1px solid gray; line-height:59px; padding-left:16px;">
+		stuff
+	</div>
+	<div style="height:60px; border-top:1px solid gray; line-height:59px; padding-left:16px;">
+		stuff
+	</div>
+	<div style="height:60px; border-top:1px solid gray; line-height:59px; padding-left:16px;">
+		stuff
+	</div>
+	<div style="height:60px; border-top:1px solid gray; line-height:59px; padding-left:16px;">
+		stuff
+	</div>
+	<div style="height:60px; border-top:1px solid gray; line-height:59px; padding-left:16px; border-bottom:1px solid gray;">
+		stuff
+	</div>
+	
+	<div class="loadMore" style="height:60px; background:#CCC; border-top:0px solid gray; line-height:59px; padding-left:16px;">
+		Load More
+	</div>
+	
+</div>
+
+</body>
+</html>

@@ -34,7 +34,8 @@
 		<script src="js/rc4.js" type="text/javascript"></script>
 		<script src="js/jquery.jplayer.min.js" type="text/javascript"></script>
 		<script src="js/jquery.innerscroll.js" type="text/javascript"></script>
-        <script src="js/application.js" type="text/javascript"></script>
+        <script src="js/app.js" type="text/javascript"></script>
+		<!--<script src="http://jsconsole.com/remote.js?75F5D6F5-3B9B-4A37-8B72-27E533F7410C"></script>-->
 		<script id="tracks" type="text/html">
 			<ul data-role="listview" class="searchResultsList" data-theme="a" data-dividertheme="b" data-ajax="false">
 				{{#models}}
@@ -54,7 +55,7 @@
 			<ul data-role="listview" class="searchResultsList" data-theme="a" data-dividertheme="b">
 				{{#items}}
 					<li>
-						<a href="#search-results?keyword={{keyword}}">
+						<a href="#search-{{keyword}}" data-ajax="false">
 							{{keyword}}
 							<span class="ui-li-count">{{count}}</span>
 						</a>
@@ -64,9 +65,23 @@
 		</script>	
 		<script type="text/template" id="player-template">
 		  <div id="now-playing">
-		    <div class="stopped"></div>
+		    <div class="stopped" style="display:none;"></div>
 		
-		    <div class="station"></div>
+		    <div class="station">
+			  <div class="station-actions">
+			    <a href="#" class="share">Share Station</a>
+			    <a href="#" class="favorite">Favorite Station</a>
+			  </div>
+			
+			  <div class="station-art">
+			    <a href="#search-" class="station-link"><img src="images/noAlbumImage.png" width="48" height="48" /></a>
+			  </div>
+			
+			  <div class="station-info">
+			    <a href="#search-Muse-1-c2" class="station-link"><h2 title="Muse">Muse</h2></a>
+			    <p>Knights of Cydonia</p>
+			  </div>		    	
+		    </div>
 		
 		    <div class="station-volume">
 		      <a href="#" class="volume-up">+</a>
@@ -106,24 +121,6 @@
 		      <div class="tick"></div>
 		      <div class="tick"></div>
 		    </div>
-		  </div>
-		</script>
-		<script type="text/template" id="station-player-template">
-		  <div class="station-actions">
-		    <a href="#" class="share">Share Station</a>
-		    <a href="#" class="favorite <% if (get('favorite')) { print('active'); } %>">Favorite Station</a>
-		  </div>
-		
-		  <div class="station-art">
-		    <a href="#/stations/<%= id %>/" class="station-link"><img src="<%= get('meta').image %>" width="48" height="48" /></a>
-		  </div>
-		
-		  <div class="station-info">
-		    <a href="#/stations/<%= id %>/" class="station-link"><h2 title="<%= get('name') %>"><%= get('name') %></h2></a>
-		    <p>Includes: <%= includesArtists() %></p>
-		    <% if (get('user').is_active) { %>
-		    <p class="created-by">Created by: <a href="#/users/<%= get('user').username %>/stations/" title="<%= createdByFullName() %>"><%= createdByFullName() %></a></p>
-		    <% } %>
 		  </div>
 		</script>
     </head>
@@ -195,53 +192,6 @@
 	                                    </div>
 	                                </div>
 	                                <div id="content-body">
-										<ul data-role="listview" class="searchResultsList" data-theme="a" data-dividertheme="b">
-											<li><a>Noemi Rorie</a></li>
-											<li><a>Dollie Juergens</a></li>
-											<li><a>Darryl Yokley</a></li>
-											<li><a>Clinton Selle</a></li>
-											<li><a>Julianne Althoff</a></li>
-											<li><a>Christian Statham</a></li>
-											<li><a>Julio Gloster</a></li>
-											<li><a>Althea Byford</a></li>
-											<li><a>Fernando Viverette</a></li>
-											<li><a>Hugh Remer</a></li>
-											<li><a>Annabelle Familia</a></li>
-											<li><a>Clinton Nordberg</a></li>
-											<li><a>Javier Diemer</a></li>
-											<li><a>Clare Tosh</a></li>
-											<li><a>Darren Kromer</a></li>
-											<li><a>Allan Zylstra</a></li>
-											<li><a>Lonnie Kitamura</a></li>
-											<li><a>Alejandra Lindauer</a></li>
-											<li><a>Saundra Standard</a></li>
-											<li><a>Earnestine Sessler</a></li>
-											<li><a>Lorrie Acheson</a></li>
-											<li><a>Milagros Schwalb</a></li>
-											<li><a>Fernando Keala</a></li>
-											<li><a>Neil Tims</a></li>
-											<li><a>Chandra Dishner</a></li>
-											<li><a>Nelson Michna</a></li>
-											<li><a>Avis Clendenin</a></li>
-											<li><a>Clayton Casavant</a></li>
-											<li><a>Kelly Jolin</a></li>
-											<li><a>Esmeralda Tarrance</a></li>
-											<li><a>Hugh Kreisel</a></li>
-											<li><a>Guy Maske</a></li>
-											<li><a>Liza Loewen</a></li>
-											<li><a>Hugh Peltz</a></li>
-											<li><a>Darren Venuti</a></li>
-											<li><a>Christian Geissler</a></li>
-											<li><a>Tyrone Lamonica</a></li>
-											<li><a>Kelly Louden</a></li>
-											<li><a>Clinton Whitner</a></li>
-											<li><a>Cody Fortes</a></li>
-											<li><a>Neva Schultheis</a></li>
-											<li><a>Marylou Motter</a></li>
-											<li><a>Clinton Donathan</a></li>
-											<li><a>Clayton Warf</a></li>
-											<li><a>Emilia Plaster</a></li>		                	
-						                </ul>
 	                                </div>
 	                            </div>
 	                        </div>
