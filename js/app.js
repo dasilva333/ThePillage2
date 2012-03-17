@@ -1,23 +1,5 @@
 (function() {
-  var TracksList;
-  var _this = this, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; }, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
-
-  window.App = {
-    activePage: function() {
-      return $(".ui-page-active");
-    },
-    reapplyStyles: function(el) {
-      el.find('ul[data-role]').listview();
-      el.find('div[data-role="fieldcontain"]').fieldcontain();
-      el.find('button[data-role="button"]').button();
-      el.find('input,textarea').textinput();
-      el.page();
-      return App.appView.scroller.updateScrollbar();
-    },
-    Views: {},
-    Models: {},
-    Routers: {}
-  };
+  var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; }, _this = this;
 
   window.RemoteLogger = {
     logEvent: function() {}
@@ -48,6 +30,203 @@
       pushState: false,
       root: "/TP2/"
     });
+  });
+
+  window.App = {
+    activePage: function() {
+      return $(".ui-page-active");
+    },
+    reapplyStyles: function(el) {
+      el.find('ul[data-role]').listview();
+      el.find('div[data-role="fieldcontain"]').fieldcontain();
+      el.find('button[data-role="button"]').button();
+      el.find('input,textarea').textinput();
+      el.page();
+      return App.appView.scroller.updateScrollbar();
+    },
+    Views: {},
+    Models: {},
+    Routers: {}
+  };
+
+  App.Routers.Router = (function() {
+
+    __extends(Router, Backbone.Router);
+
+    Router.prototype.routes = {
+      '': "home",
+      "home": "home",
+      "search-:keyword-:page-view-:trackid": "show",
+      "search-:keyword-:page-play-:trackid": "play",
+      "search-:keyword-:page": "search",
+      "search-:keyword": "search"
+    };
+
+    function Router() {
+      Router.__super__.constructor.apply(this, arguments);
+      this._views = {};
+      this._tracks = {};
+    }
+
+    Router.prototype.defaultRoute = function() {
+      return console.log("default?");
+    };
+
+    Router.prototype.home = function() {
+      var _base;
+      console.log("creating new homepage after domready");
+      return (_base = this._views)['home'] || (_base['home'] = new App.Views.HomeView({
+        el: App.activePage()
+      }).render());
+    };
+
+    Router.prototype.search = function(keyword, page) {
+      var _base, _base2, _name;
+      page || (page = 1);
+      (_base = this._tracks)[keyword] || (_base[keyword] = new App.Models.Tracks({
+        keyword: keyword,
+        page: page
+      }));
+      return (_base2 = this._views)[_name = "search-" + keyword] || (_base2[_name] = new App.Views.TracksList({
+        collection: this._tracks[keyword]
+      }).render());
+    };
+
+    Router.prototype.play = function(keyword, page, cid) {
+      var track;
+      this.search(keyword, page);
+      track = this._views["search-" + keyword + "-" + page].tracks.getByCid(cid);
+      return app.TrackPlayer.handleNext(track);
+    };
+
+    return Router;
+
+  })();
+
+  App.Models.Track = (function() {
+
+    __extends(Track, Backbone.Model);
+
+    function Track() {
+      Track.__super__.constructor.apply(this, arguments);
+    }
+
+    Track.prototype.getSongUrl = function() {
+      return rc4.decrypt(this.get("song_url"), "Error, this track is not valid!");
+    };
+
+    Track.prototype.getAlbumImage = function() {
+      return "images/noAlbumImage.png";
+    };
+
+    Track.prototype.getArtist = function() {
+      return this.get('artist');
+    };
+
+    Track.prototype.getTitle = function() {
+      return this.get('title');
+    };
+
+    Track.prototype.getFullName = function() {
+      return "" + (this.get('artist')) + " - " + (this.get('title')) + " ";
+    };
+
+    Track.prototype.getDurationFormatted = function() {
+      return $.jPlayer.convertTime(this.get('duration'));
+    };
+
+    Track.prototype.getTrackId = function() {
+      return this.get('trackid');
+    };
+
+    return Track;
+
+  })();
+
+  App.Views.TracksList = Backbone.View.extend({
+    initialize: function() {
+      this.template = ich.tracks;
+      console.log("TracksList initialize");
+      console.log(this);
+      this.tracks = '';
+      return this;
+    },
+    render: function() {
+      console.log("TracksList render");
+      console.log(this);
+      this.$el.find('#content-body').html(this.template(this.tracks));
+      App.reapplyStyles(this.$el);
+      return this;
+    }
+  });
+
+  App.Views.SidebarView = Backbone.View.extend({
+    speed: 200,
+    initialize: function() {
+      this.el = $(this.options.el);
+      this.content = $(this.options.content);
+      this.arrow = $(this.options.arrow);
+      this.items = $(this.options.items);
+      return this;
+    },
+    events: {
+      'click #collapsible-nav': 'toggle'
+    },
+    toggle: function(event, show, speed) {
+      if (show || this.items.is(":visible")) {
+        this.el.animate({
+          width: 30
+        }, speed || this.speed);
+        this.items.fadeOut(30);
+        this.arrow.switchClass('arrowLeft', 'arrowRight', 30);
+        return this.content.animate({
+          left: 31
+        }, speed || this.speed);
+      } else {
+        this.el.animate({
+          width: 155
+        }, speed || this.speed);
+        this.items.delay(170).fadeIn(100);
+        this.arrow.switchClass('arrowRight', 'arrowLeft', 30);
+        return this.content.animate({
+          left: 156
+        }, speed || this.speed);
+      }
+    }
+  });
+
+  App.Views.AppView = Backbone.View.extend({
+    render: function() {
+      this.sidebar = new App.Views.SidebarView({
+        el: "#nav",
+        content: "#content-scroll",
+        arrow: "#arrow",
+        items: "#nav-content"
+      });
+      this.player = new App.Views.TrackPlayer({
+        el: $("#player-container")
+      });
+      this.search = new App.Views.SearchView({
+        el: this.$("#search-form")
+      });
+      this.scroller = new App.Views.ContentView({
+        el: this.$("#content")
+      });
+      return this;
+    }
+  });
+
+  App.Views.SearchView = Backbone.View.extend({
+    events: {
+      "submit": "search"
+    },
+    search: function(event) {
+      app.router.navigate('#search-' + this.$el.find("input").val() + '-1', {
+        trigger: true
+      });
+      app.router.search(this.$el.find("input").val());
+      return false;
+    }
   });
 
   App.Views.ContentView = Backbone.View.extend({
@@ -96,79 +275,6 @@
     }
   });
 
-  App.Routers.Router = (function() {
-
-    __extends(Router, Backbone.Router);
-
-    Router.prototype.routes = {
-      '': "home",
-      "home": "home",
-      "search-:keyword-:page-view-:trackid": "show",
-      "search-:keyword-:page-play-:trackid": "play",
-      "search-:keyword-:page": "search",
-      "search-:keyword": "search"
-    };
-
-    function Router() {
-      Router.__super__.constructor.apply(this, arguments);
-      this._views = {};
-    }
-
-    Router.prototype.defaultRoute = function() {
-      return console.log("default?");
-    };
-
-    Router.prototype.home = function() {
-      var _base;
-      return (_base = this._views)['home'] || (_base['home'] = new App.Views.HomeView({
-        el: App.activePage()
-      }).render());
-    };
-
-    Router.prototype.search = function(keyword, page) {
-      var _base, _name;
-      page || (page = 1);
-      return (_base = this._views)[_name = "search-" + keyword + "-" + page] || (_base[_name] = new App.Views.TracksList({
-        keyword: keyword,
-        page: page
-      }));
-    };
-
-    Router.prototype.play = function(keyword, page, cid) {
-      var track;
-      this.search(keyword, page);
-      track = this._views["search-" + keyword + "-" + page].tracks.getByCid(cid);
-      return app.TrackPlayer.handleNext(track);
-    };
-
-    return Router;
-
-  })();
-
-  TracksList = (function() {
-
-    __extends(TracksList, Backbone.View);
-
-    function TracksList() {
-      this.render = __bind(this.render, this);      TracksList.__super__.constructor.apply(this, arguments);
-      this.el = app.activePage();
-      this.template = ich.tracks;
-      this.tracks = new TrackCollection({
-        keyword: this.options.keyword,
-        page: this.options.page
-      });
-      this.tracks.on("add", this.render);
-    }
-
-    TracksList.prototype.render = function() {
-      this.el.find('#content-body').html(this.template(this.tracks));
-      return app.reapplyStyles(this.el);
-    };
-
-    return TracksList;
-
-  })();
-
   App.Views.HomeView = Backbone.View.extend({
     initialize: function() {
       this.template = ich.history;
@@ -193,19 +299,6 @@
     render: function() {
       this.$el.find('#content-body').html(this.template(this.history));
       return App.reapplyStyles(this.$el);
-    }
-  });
-
-  App.Views.SearchView = Backbone.View.extend({
-    events: {
-      "submit": "search"
-    },
-    search: function(event) {
-      app.router.navigate('#search-' + this.$el.find("input").val() + '-1', {
-        trigger: true
-      });
-      app.router.search(this.$el.find("input").val());
-      return false;
     }
   });
 
@@ -398,133 +491,31 @@
     }
   });
 
-  App.Views.AppView = Backbone.View.extend({
-    render: function() {
-      this.sidebar = new App.Views.SidebarView({
-        el: "#nav",
-        content: "#content-scroll",
-        arrow: "#arrow",
-        items: "#nav-content"
-      });
-      this.player = new App.Views.TrackPlayer({
-        el: $("#player-container")
-      });
-      this.search = new App.Views.SearchView({
-        el: this.$("#search-form")
-      });
-      this.scroller = new App.Views.ContentView({
-        el: this.$("#content")
-      });
-      return this;
-    }
-  });
-
-  App.Models.Track = (function() {
-
-    __extends(Track, Backbone.Model);
-
-    function Track() {
-      Track.__super__.constructor.apply(this, arguments);
-    }
-
-    Track.prototype.getSongUrl = function() {
-      return rc4.decrypt(this.get("song_url"), "Error, this track is not valid!");
-    };
-
-    Track.prototype.getAlbumImage = function() {
-      return "images/noAlbumImage.png";
-    };
-
-    Track.prototype.getArtist = function() {
-      return this.get('artist');
-    };
-
-    Track.prototype.getTitle = function() {
-      return this.get('title');
-    };
-
-    Track.prototype.getFullName = function() {
-      return "" + (this.get('artist')) + " - " + (this.get('title')) + " ";
-    };
-
-    Track.prototype.getDurationFormatted = function() {
-      return $.jPlayer.convertTime(this.get('duration'));
-    };
-
-    Track.prototype.getTrackId = function() {
-      return this.get('trackid');
-    };
-
-    return Track;
-
-  })();
-
-  App.Models.Tracks = (function() {
-
-    __extends(Tracks, Backbone.Collection);
-
-    Tracks.prototype.model = App.Models.Track;
-
-    Tracks.prototype.keyword = "";
-
-    Tracks.prototype.page = 1;
-
-    Tracks.prototype.url = function() {
+  App.Collections.Tracks = Backbone.Collection.extend({
+    model: App.Models.Track,
+    keyword: "",
+    page: 1,
+    url: function() {
       return "http://www.playlist.com/async/searchbeta/tracks?searchfor=" + this.keyword + "&page=" + this.page;
-    };
-
-    function Tracks(options) {
-      this.success = __bind(this.success, this);      Tracks.__super__.constructor.apply(this, arguments);
-      this.reset();
+    },
+    add: function(data) {
+      console.log("new collection added");
+      return console.log(data);
+    },
+    initialize: function(options) {
+      var self;
+      self = this;
       this.keyword = options.keyword;
       this.page = options.page;
-      this.fetch({
+      console.log(this.model);
+      return this.fetch({
         type: "GET",
         dataType: "jsonp",
-        complete: this.success
+        complete: function() {
+          console.log(self);
+          return self.add(PPL.search.trackdata);
+        }
       });
-    }
-
-    Tracks.prototype.success = function(data) {
-      return this.add(PPL.search.trackdata);
-    };
-
-    return Tracks;
-
-  })();
-
-  App.Views.SidebarView = Backbone.View.extend({
-    speed: 200,
-    initialize: function() {
-      this.el = $(this.options.el);
-      this.content = $(this.options.content);
-      this.arrow = $(this.options.arrow);
-      this.items = $(this.options.items);
-      return this;
-    },
-    events: {
-      'click #collapsible-nav': 'toggle'
-    },
-    toggle: function(event, show, speed) {
-      if (show || this.items.is(":visible")) {
-        this.el.animate({
-          width: 30
-        }, speed || this.speed);
-        this.items.fadeOut(30);
-        this.arrow.switchClass('arrowLeft', 'arrowRight', 30);
-        return this.content.animate({
-          left: 31
-        }, speed || this.speed);
-      } else {
-        this.el.animate({
-          width: 155
-        }, speed || this.speed);
-        this.items.delay(170).fadeIn(100);
-        this.arrow.switchClass('arrowRight', 'arrowLeft', 30);
-        return this.content.animate({
-          left: 156
-        }, speed || this.speed);
-      }
     }
   });
 
