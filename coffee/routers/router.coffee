@@ -19,11 +19,10 @@ class App.Routers.Router extends Backbone.Router
     console.log("creating new homepage after domready")
     @_views['home'] ||= new App.Views.HomeView({ el: App.activePage() }).render()
 
-  search: (keyword, page) ->
-    page or= 1
+  search: (keyword) ->
     ##figure out a good way to structure the paging here
-    @_tracks[keyword] ||= new App.Models.Tracks { keyword : keyword, page: page }
-    @_views["search-#{keyword}"] ||= new App.Views.TracksList({ collection: @_tracks[keyword] }).render()
+    @_tracks[keyword] ||= new App.Collections.Tracks(null, { keyword : keyword }).fetch()
+    ##@_views["search-#{keyword}"] ||= new App.Views.TracksList({ el: $("#content-body")[0], collection: @_tracks[keyword] }).render()
 
   play: (keyword, page, cid) ->
       @search(keyword, page)

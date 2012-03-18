@@ -1,26 +1,26 @@
 #
 # Tracks View
 #
-
 App.Views.TracksList = Backbone.View.extend
-  
-  initialize: ->
 
+  initialize: ->
+    _.bindAll this, "next", "render"
     @template = ich.tracks
-    console.log("TracksList initialize")
-    console.log(@)
-    @tracks = '';
-    
-    ##@tracks.on "add", @render
+    @collection.bind "refresh", @render
     @
     
+  events:
+    "click a.next": "next"
+
   render: ->
-    console.log("TracksList render")
-    console.log(@)
-    # Render the content
-    @$el.find('#content-body').html @template @tracks
-    
-    # A hacky way of reapplying the jquery mobile styles
+    ##@el.html app.templates.pagination(@collection.pageInfo())
+    @$el.find('#content-body').html @template @collection
     App.reapplyStyles(@$el)
     @
-         
+
+  next: ->
+    @collection.nextPage()
+    false
+
+
+

@@ -1,6 +1,24 @@
 (function() {
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; }, _this = this;
 
+  window.App = {
+    activePage: function() {
+      return $(".ui-page-active");
+    },
+    reapplyStyles: function(el) {
+      el.find("ul[data-role]").listview();
+      el.find("div[data-role=\"fieldcontain\"]").fieldcontain();
+      el.find("button[data-role=\"button\"]").button();
+      el.find("input,textarea").textinput();
+      el.page();
+      return App.appView.scroller.updateScrollbar();
+    },
+    Views: {},
+    Models: {},
+    Routers: {},
+    Collections: {}
+  };
+
   window.RemoteLogger = {
     logEvent: function() {}
   };
@@ -31,23 +49,6 @@
       root: "/TP2/"
     });
   });
-
-  window.App = {
-    activePage: function() {
-      return $(".ui-page-active");
-    },
-    reapplyStyles: function(el) {
-      el.find('ul[data-role]').listview();
-      el.find('div[data-role="fieldcontain"]').fieldcontain();
-      el.find('button[data-role="button"]').button();
-      el.find('input,textarea').textinput();
-      el.page();
-      return App.appView.scroller.updateScrollbar();
-    },
-    Views: {},
-    Models: {},
-    Routers: {}
-  };
 
   App.Routers.Router = (function() {
 
@@ -80,16 +81,11 @@
       }).render());
     };
 
-    Router.prototype.search = function(keyword, page) {
-      var _base, _base2, _name;
-      page || (page = 1);
-      (_base = this._tracks)[keyword] || (_base[keyword] = new App.Models.Tracks({
-        keyword: keyword,
-        page: page
-      }));
-      return (_base2 = this._views)[_name = "search-" + keyword] || (_base2[_name] = new App.Views.TracksList({
-        collection: this._tracks[keyword]
-      }).render());
+    Router.prototype.search = function(keyword) {
+      var _base;
+      return (_base = this._tracks)[keyword] || (_base[keyword] = new App.Collections.Tracks(null, {
+        keyword: keyword
+      }).fetch());
     };
 
     Router.prototype.play = function(keyword, page, cid) {
@@ -145,86 +141,21 @@
 
   App.Views.TracksList = Backbone.View.extend({
     initialize: function() {
+      _.bindAll(this, "next", "render");
       this.template = ich.tracks;
-      console.log("TracksList initialize");
-      console.log(this);
-      this.tracks = '';
+      this.collection.bind("refresh", this.render);
       return this;
     },
+    events: {
+      "click a.next": "next"
+    },
     render: function() {
-      console.log("TracksList render");
-      console.log(this);
-      this.$el.find('#content-body').html(this.template(this.tracks));
+      this.$el.find('#content-body').html(this.template(this.collection));
       App.reapplyStyles(this.$el);
       return this;
-    }
-  });
-
-  App.Views.SidebarView = Backbone.View.extend({
-    speed: 200,
-    initialize: function() {
-      this.el = $(this.options.el);
-      this.content = $(this.options.content);
-      this.arrow = $(this.options.arrow);
-      this.items = $(this.options.items);
-      return this;
     },
-    events: {
-      'click #collapsible-nav': 'toggle'
-    },
-    toggle: function(event, show, speed) {
-      if (show || this.items.is(":visible")) {
-        this.el.animate({
-          width: 30
-        }, speed || this.speed);
-        this.items.fadeOut(30);
-        this.arrow.switchClass('arrowLeft', 'arrowRight', 30);
-        return this.content.animate({
-          left: 31
-        }, speed || this.speed);
-      } else {
-        this.el.animate({
-          width: 155
-        }, speed || this.speed);
-        this.items.delay(170).fadeIn(100);
-        this.arrow.switchClass('arrowRight', 'arrowLeft', 30);
-        return this.content.animate({
-          left: 156
-        }, speed || this.speed);
-      }
-    }
-  });
-
-  App.Views.AppView = Backbone.View.extend({
-    render: function() {
-      this.sidebar = new App.Views.SidebarView({
-        el: "#nav",
-        content: "#content-scroll",
-        arrow: "#arrow",
-        items: "#nav-content"
-      });
-      this.player = new App.Views.TrackPlayer({
-        el: $("#player-container")
-      });
-      this.search = new App.Views.SearchView({
-        el: this.$("#search-form")
-      });
-      this.scroller = new App.Views.ContentView({
-        el: this.$("#content")
-      });
-      return this;
-    }
-  });
-
-  App.Views.SearchView = Backbone.View.extend({
-    events: {
-      "submit": "search"
-    },
-    search: function(event) {
-      app.router.navigate('#search-' + this.$el.find("input").val() + '-1', {
-        trigger: true
-      });
-      app.router.search(this.$el.find("input").val());
+    next: function() {
+      this.collection.nextPage();
       return false;
     }
   });
@@ -275,30 +206,72 @@
     }
   });
 
-  App.Views.HomeView = Backbone.View.extend({
-    initialize: function() {
-      this.template = ich.history;
-      return this.history = {
-        items: [
-          {
-            keyword: "Muse",
-            count: 1
-          }, {
-            keyword: "Radiohead",
-            count: 5
-          }, {
-            keyword: "Adele",
-            count: 3
-          }, {
-            keyword: "Tool",
-            count: 2
-          }
-        ]
-      };
-    },
+  App.Views.AppView = Backbone.View.extend({
     render: function() {
-      this.$el.find('#content-body').html(this.template(this.history));
-      return App.reapplyStyles(this.$el);
+      this.sidebar = new App.Views.SidebarView({
+        el: "#nav",
+        content: "#content-scroll",
+        arrow: "#arrow",
+        items: "#nav-content"
+      });
+      this.player = new App.Views.TrackPlayer({
+        el: $("#player-container")
+      });
+      this.search = new App.Views.SearchView({
+        el: this.$("#search-form")
+      });
+      this.scroller = new App.Views.ContentView({
+        el: this.$("#content")
+      });
+      return this;
+    }
+  });
+
+  App.Views.SearchView = Backbone.View.extend({
+    events: {
+      "submit": "search"
+    },
+    search: function(event) {
+      app.router.navigate('#search-' + this.$el.find("input").val() + '-1', {
+        trigger: true
+      });
+      app.router.search(this.$el.find("input").val());
+      return false;
+    }
+  });
+
+  App.Views.SidebarView = Backbone.View.extend({
+    speed: 200,
+    initialize: function() {
+      this.el = $(this.options.el);
+      this.content = $(this.options.content);
+      this.arrow = $(this.options.arrow);
+      this.items = $(this.options.items);
+      return this;
+    },
+    events: {
+      'click #collapsible-nav': 'toggle'
+    },
+    toggle: function(event, show, speed) {
+      if (show || this.items.is(":visible")) {
+        this.el.animate({
+          width: 30
+        }, speed || this.speed);
+        this.items.fadeOut(30);
+        this.arrow.switchClass('arrowLeft', 'arrowRight', 30);
+        return this.content.animate({
+          left: 31
+        }, speed || this.speed);
+      } else {
+        this.el.animate({
+          width: 155
+        }, speed || this.speed);
+        this.items.delay(170).fadeIn(100);
+        this.arrow.switchClass('arrowRight', 'arrowLeft', 30);
+        return this.content.animate({
+          left: 156
+        }, speed || this.speed);
+      }
     }
   });
 
@@ -491,32 +464,129 @@
     }
   });
 
-  App.Collections.Tracks = Backbone.Collection.extend({
-    model: App.Models.Track,
-    keyword: "",
-    page: 1,
-    url: function() {
-      return "http://www.playlist.com/async/searchbeta/tracks?searchfor=" + this.keyword + "&page=" + this.page;
+  App.Views.HomeView = Backbone.View.extend({
+    initialize: function() {
+      this.template = ich.history;
+      return this.history = {
+        items: [
+          {
+            keyword: "Muse",
+            count: 1
+          }, {
+            keyword: "Radiohead",
+            count: 5
+          }, {
+            keyword: "Adele",
+            count: 3
+          }, {
+            keyword: "Tool",
+            count: 2
+          }
+        ]
+      };
     },
-    add: function(data) {
-      console.log("new collection added");
-      return console.log(data);
-    },
-    initialize: function(options) {
-      var self;
-      self = this;
-      this.keyword = options.keyword;
-      this.page = options.page;
-      console.log(this.model);
-      return this.fetch({
-        type: "GET",
-        dataType: "jsonp",
-        complete: function() {
-          console.log(self);
-          return self.add(PPL.search.trackdata);
-        }
-      });
+    render: function() {
+      this.$el.find('#content-body').html(this.template(this.history));
+      return App.reapplyStyles(this.$el);
     }
   });
+
+  App.Collections.PaginatedCollection = Backbone.Collection.extend({
+    initialize: function() {
+      var options;
+      _.bindAll(this, "parse", "url", "pageInfo", "nextPage", "previousPage");
+      typeof options !== "undefined" || (options = {});
+      this.page = 1;
+      return typeof this.perPage !== "undefined" || (this.perPage = 10);
+    },
+    parse: function(resp) {
+      this.page = resp.page;
+      this.perPage = resp.perPage;
+      this.total = resp.total;
+      return resp.models;
+    },
+    url: function() {
+      return this.baseUrl() + "&" + $.param({
+        page: this.page
+      });
+    },
+    pageInfo: function() {
+      var info, max;
+      info = {
+        total: this.total,
+        page: this.page,
+        perPage: this.perPage,
+        pages: Math.ceil(this.total / this.perPage),
+        prev: false,
+        next: false
+      };
+      max = Math.min(this.total, this.page * this.perPage);
+      if (this.total === this.pages * this.perPage) max = this.total;
+      info.range = [(this.page - 1) * this.perPage + 1, max];
+      if (this.page > 1) info.prev = this.page - 1;
+      if (this.page < info.pages) info.next = this.page + 1;
+      return info;
+    },
+    nextPage: function() {
+      if (!this.pageInfo().next) return false;
+      this.page = this.page + 1;
+      return this.fetch();
+    },
+    previousPage: function() {
+      if (!this.pageInfo().prev) return false;
+      this.page = this.page - 1;
+      return this.fetch();
+    }
+  });
+
+  App.Collections.Tracks = (function() {
+
+    __extends(Tracks, App.Collections.PaginatedCollection);
+
+    function Tracks() {
+      Tracks.__super__.constructor.apply(this, arguments);
+    }
+
+    Tracks.prototype.model = App.Models.Track;
+
+    Tracks.prototype.baseUrl = function() {
+      return "http://www.playlist.com/async/searchbeta/tracks?searchfor=" + this.keyword;
+    };
+
+    Tracks.prototype.sync = function(method, model, options) {
+      var params;
+      params = _.extend({
+        type: "GET",
+        dataType: "jsonp",
+        url: model.url(),
+        processData: false,
+        complete: options.success
+      }, options);
+      return $.ajax(params);
+    };
+
+    Tracks.prototype.parse = function(resp) {
+      return Tracks.__super__.parse.call(this, {
+        page: PPL.search.currentPage,
+        perPage: 10,
+        total: parseInt(PPL.search.track_count),
+        models: PPL.search.trackdata
+      });
+    };
+
+    Tracks.prototype.fetch = function() {
+      Tracks.__super__.fetch.call(this, {
+        add: true
+      });
+      return this;
+    };
+
+    Tracks.prototype.initialize = function(collections, options) {
+      return this.keyword = options.keyword;
+    };
+
+    return Tracks;
+
+  })();
 
 }).call(this);
