@@ -2,9 +2,8 @@ class App.Routers.Router extends Backbone.Router
   routes :
     ''                                        : "home"
     "home"                                    : "home"
-    "search-:keyword-:page-view-:trackid"     : "show"
-    "search-:keyword-:page-play-:trackid"     : "play"       
-    "search-:keyword-:page"                   : "search"
+    "search-:keyword-view-:trackid"           : "show"
+    "search-:keyword-play-:trackid"           : "play"       
     "search-:keyword"                         : "search" 
     
   constructor: ->
@@ -12,20 +11,17 @@ class App.Routers.Router extends Backbone.Router
     @_views = {}
     @_tracks = {}
     
-  defaultRoute: ->
-    console.log("default?")
-    
   home: ->
-    console.log("creating new homepage after domready")
     @_views['home'] ||= new App.Views.HomeView({ el: App.activePage() }).render()
 
   search: (keyword) ->
-    ##figure out a good way to structure the paging here
-    @_tracks[keyword] ||= new App.Collections.Tracks(null, { keyword : keyword }).fetch()
-    ##@_views["search-#{keyword}"] ||= new App.Views.TracksList({ el: $("#content-body")[0], collection: @_tracks[keyword] }).render()
-
-  play: (keyword, page, cid) ->
+    @_tracks[keyword] ||= new App.Collections.Tracks(null, { keyword : keyword })
+    @_views[keyword] ||= new App.Views.TracksList({ el: $("#home")[0], collection: @_tracks[keyword] })
+    @_tracks[keyword].fetch()
+    @_views[keyword].render() 
+    
+  play: (keyword, cid) ->
       @search(keyword, page)
       ##need to figure out how to wait for the ready event of search to fire this part
-      track = @_views["search-#{keyword}-#{page}"].tracks.getByCid(cid)
-      app.TrackPlayer.handleNext track
+      track = @_views["search-#{keyword}"].tracks.getByCid(cid)
+      App.TrackPlayer.handleNext track
