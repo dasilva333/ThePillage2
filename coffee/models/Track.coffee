@@ -23,4 +23,4 @@ class App.Models.Track extends Backbone.Model
       $.jPlayer.convertTime @get 'duration'
       
   getTrackId: ->
-    @get 'trackid'  
+    @get 'trackid'

@@ -59,45 +59,23 @@
     Collections: {}
   };
 
-  App.Models.Track = (function() {
-
-    __extends(Track, Backbone.Model);
-
-    function Track() {
-      Track.__super__.constructor.apply(this, arguments);
+  App.Views.AppView = Backbone.View.extend({
+    render: function() {
+      this.sidebar = new App.Views.SidebarView({
+        el: "#nav",
+        content: "#content-scroll",
+        arrow: "#arrow",
+        items: "#nav-content"
+      });
+      this.player = new App.Views.TrackPlayer({
+        el: this.$("#player-container")
+      });
+      this.search = new App.Views.SearchView({
+        el: this.$("#search-form")
+      });
+      return this;
     }
-
-    Track.prototype.getSongUrl = function() {
-      return rc4.decrypt(this.get("song_url"), "Error, this track is not valid!");
-    };
-
-    Track.prototype.getAlbumImage = function() {
-      return "images/noAlbumImage.png";
-    };
-
-    Track.prototype.getArtist = function() {
-      return this.get('artist');
-    };
-
-    Track.prototype.getTitle = function() {
-      return this.get('title');
-    };
-
-    Track.prototype.getFullName = function() {
-      return "" + (this.get('artist')) + " - " + (this.get('title')) + " ";
-    };
-
-    Track.prototype.getDurationFormatted = function() {
-      return $.jPlayer.convertTime(this.get('duration'));
-    };
-
-    Track.prototype.getTrackId = function() {
-      return this.get('trackid');
-    };
-
-    return Track;
-
-  })();
+  });
 
   App.Routers.Router = (function() {
 
@@ -128,60 +106,23 @@
       var _base, _base2;
       (_base = this._tracks)[keyword] || (_base[keyword] = new App.Collections.Tracks(null, {
         keyword: keyword
-      }));
-      (_base2 = this._views)[keyword] || (_base2[keyword] = new App.Views.TracksList({
+      }).fetch());
+      return (_base2 = this._views)[keyword] || (_base2[keyword] = new App.Views.TracksList({
         el: $("#home")[0],
         collection: this._tracks[keyword]
-      }));
-      this._tracks[keyword].fetch();
-      return this._views[keyword].render();
+      }).render());
     };
 
     Router.prototype.play = function(keyword, cid) {
-      var track;
-      this.search(keyword, page);
-      track = this._views["search-" + keyword].tracks.getByCid(cid);
-      return App.TrackPlayer.handleNext(track);
+      var _this = this;
+      return this.search(keyword).on("rendered", function() {
+        return App.appView.player.handleNext(_this._tracks[keyword].getByCid(cid));
+      });
     };
 
     return Router;
 
   })();
-
-  App.Views.SidebarView = Backbone.View.extend({
-    speed: 200,
-    initialize: function() {
-      this.el = $(this.options.el);
-      this.content = $(this.options.content);
-      this.arrow = $(this.options.arrow);
-      this.items = $(this.options.items);
-      return this;
-    },
-    events: {
-      'click #collapsible-nav': 'toggle'
-    },
-    toggle: function(event, show, speed) {
-      if (show || this.items.is(":visible")) {
-        this.el.animate({
-          width: 30
-        }, speed || this.speed);
-        this.items.fadeOut(30);
-        this.arrow.switchClass('arrowLeft', 'arrowRight', 30);
-        return this.content.animate({
-          left: 31
-        }, speed || this.speed);
-      } else {
-        this.el.animate({
-          width: 155
-        }, speed || this.speed);
-        this.items.delay(170).fadeIn(100);
-        this.arrow.switchClass('arrowRight', 'arrowLeft', 30);
-        return this.content.animate({
-          left: 156
-        }, speed || this.speed);
-      }
-    }
-  });
 
   App.Views.ContentView = Backbone.View.extend({
     render: function() {
@@ -255,10 +196,12 @@
     };
 
     TracksList.prototype.render = function() {
+      this.trigger("rendering");
       this.$el.find("#content-body").html(this.template(this.collection.pageInfo()));
       this._trackCollectionView.el = this.$el.find(".tracks").empty();
       this._trackCollectionView.render();
       App.reapplyStyles(this.$el);
+      this.trigger("rendered");
       TracksList.__super__.render.apply(this, arguments);
       return this;
     };
@@ -271,6 +214,41 @@
     return TracksList;
 
   })();
+
+  App.Views.SidebarView = Backbone.View.extend({
+    speed: 200,
+    initialize: function() {
+      this.el = $(this.options.el);
+      this.content = $(this.options.content);
+      this.arrow = $(this.options.arrow);
+      this.items = $(this.options.items);
+      return this;
+    },
+    events: {
+      'click #collapsible-nav': 'toggle'
+    },
+    toggle: function(event, show, speed) {
+      if (show || this.items.is(":visible")) {
+        this.el.animate({
+          width: 30
+        }, speed || this.speed);
+        this.items.fadeOut(30);
+        this.arrow.switchClass('arrowLeft', 'arrowRight', 30);
+        return this.content.animate({
+          left: 31
+        }, speed || this.speed);
+      } else {
+        this.el.animate({
+          width: 155
+        }, speed || this.speed);
+        this.items.delay(170).fadeIn(100);
+        this.arrow.switchClass('arrowRight', 'arrowLeft', 30);
+        return this.content.animate({
+          left: 156
+        }, speed || this.speed);
+      }
+    }
+  });
 
   App.Views.HomeView = Backbone.View.extend({
     initialize: function() {
@@ -299,16 +277,93 @@
     }
   });
 
-  App.Views.SearchView = Backbone.View.extend({
-    events: {
-      "submit": "search"
+  App.Views.UpdatingCollectionView = Backbone.View.extend({
+    initialize: function(options) {
+      _(this).bindAll("add", "remove");
+      if (!options.childViewConstructor) {
+        throw "no child view constructor provided";
+      }
+      this._childViewConstructor = options.childViewConstructor;
+      this._childViews = [];
+      this.collection.each(this.add);
+      this.collection.bind("add", this.add);
+      return this.collection.bind("remove", this.remove);
     },
-    search: function(event) {
-      App.router.navigate('#search-' + this.$el.find("input").val(), {
-        trigger: true
+    add: function(model) {
+      var childView;
+      childView = new this._childViewConstructor({
+        model: model
       });
-      App.router.search(this.$el.find("input").val());
-      return false;
+      this._childViews.push(childView);
+      if (this._rendered) return this.el.append(childView.render().el);
+    },
+    remove: function(model) {
+      var viewToRemove;
+      viewToRemove = _(this._childViews).select(function(cv) {
+        return cv.model === model;
+      })[0];
+      this._childViews = _(this._childViews).without(viewToRemove);
+      if (this._rendered) return $(viewToRemove.el).remove();
+    },
+    render: function() {
+      var _this = this;
+      this._rendered = true;
+      this.el.empty();
+      _(this._childViews).each(function(childView) {
+        return _this.el.append(childView.render().el);
+      });
+      return this;
+    }
+  });
+
+  App.Models.Track = (function() {
+
+    __extends(Track, Backbone.Model);
+
+    function Track() {
+      Track.__super__.constructor.apply(this, arguments);
+    }
+
+    Track.prototype.getSongUrl = function() {
+      return rc4.decrypt(this.get("song_url"), "Error, this track is not valid!");
+    };
+
+    Track.prototype.getAlbumImage = function() {
+      return "images/noAlbumImage.png";
+    };
+
+    Track.prototype.getArtist = function() {
+      return this.get('artist');
+    };
+
+    Track.prototype.getTitle = function() {
+      return this.get('title');
+    };
+
+    Track.prototype.getFullName = function() {
+      return "" + (this.get('artist')) + " - " + (this.get('title')) + " ";
+    };
+
+    Track.prototype.getDurationFormatted = function() {
+      return $.jPlayer.convertTime(this.get('duration'));
+    };
+
+    Track.prototype.getTrackId = function() {
+      return this.get('trackid');
+    };
+
+    return Track;
+
+  })();
+
+  App.Views.TrackView = Backbone.View.extend({
+    tagName: 'li',
+    initialize: function() {
+      return this.template = ich.track;
+    },
+    render: function() {
+      this.$el.html(this.template(this.model));
+      return this;
     }
   });
 
@@ -501,71 +556,16 @@
     }
   });
 
-  App.Views.AppView = Backbone.View.extend({
-    render: function() {
-      this.sidebar = new App.Views.SidebarView({
-        el: "#nav",
-        content: "#content-scroll",
-        arrow: "#arrow",
-        items: "#nav-content"
-      });
-      this.player = new App.Views.TrackPlayer({
-        el: this.$("#player-container")
-      });
-      this.search = new App.Views.SearchView({
-        el: this.$("#search-form")
-      });
-      return this;
-    }
-  });
-
-  App.Views.UpdatingCollectionView = Backbone.View.extend({
-    initialize: function(options) {
-      _(this).bindAll("add", "remove");
-      if (!options.childViewConstructor) {
-        throw "no child view constructor provided";
-      }
-      this._childViewConstructor = options.childViewConstructor;
-      this._childViews = [];
-      this.collection.each(this.add);
-      this.collection.bind("add", this.add);
-      return this.collection.bind("remove", this.remove);
+  App.Views.SearchView = Backbone.View.extend({
+    events: {
+      "submit": "search"
     },
-    add: function(model) {
-      var childView;
-      childView = new this._childViewConstructor({
-        model: model
+    search: function(event) {
+      App.router.navigate('#search-' + this.$el.find("input").val(), {
+        trigger: true
       });
-      this._childViews.push(childView);
-      if (this._rendered) return this.el.append(childView.render().el);
-    },
-    remove: function(model) {
-      var viewToRemove;
-      viewToRemove = _(this._childViews).select(function(cv) {
-        return cv.model === model;
-      })[0];
-      this._childViews = _(this._childViews).without(viewToRemove);
-      if (this._rendered) return $(viewToRemove.el).remove();
-    },
-    render: function() {
-      var _this = this;
-      this._rendered = true;
-      this.el.empty();
-      _(this._childViews).each(function(childView) {
-        return _this.el.append(childView.render().el);
-      });
-      return this;
-    }
-  });
-
-  App.Views.TrackView = Backbone.View.extend({
-    tagName: 'li',
-    initialize: function() {
-      return this.template = ich.track;
-    },
-    render: function() {
-      this.$el.html(this.template(this.model));
-      return this;
+      App.router.search(this.$el.find("input").val());
+      return false;
     }
   });
 

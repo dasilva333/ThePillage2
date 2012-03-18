@@ -60,11 +60,12 @@ class App.Views.TracksList extends App.Views.ContentView
     "click a.next": "next"
 
   render: ->
-    
+    @trigger "rendering"
     @$el.find("#content-body").html @template @collection.pageInfo() 
     @_trackCollectionView.el = @$el.find(".tracks").empty()    
     @_trackCollectionView.render()
     App.reapplyStyles(@$el)
+    @trigger "rendered"
     super
     @
 

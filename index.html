@@ -37,13 +37,13 @@
         <script src="js/app.js" type="text/javascript"></script>
 		<!--<script src="http://jsconsole.com/remote.js?75F5D6F5-3B9B-4A37-8B72-27E533F7410C"></script>-->
 		<script id="track" type="text/html">
-			<a href="#search-{{keyword}}-{{page}}-play-{{cid}}" data-ajax="false">
+			<a href="#search-{{collection.keyword}}-play-{{cid}}" data-ajax="false">
 				<img src="{{getAlbumImage}}" />
 				<h3>{{getArtist}}</h3>
 				<p>{{getTitle}}</p>
 				<span class="ui-li-count">{{getDurationFormatted}}</span>
 			</a>	
-			<a href="#track-view?linkid={{linkid}}" data-rel="dialog" data-transition="pop">More Options</a>			
+			<a href="#search-{{collection.keyword}}-view-{{cid}}" data-rel="dialog" data-transition="pop">More Options</a>			
 		</script>		
 		<script id="tracks" type="text/html">
 			<ul data-role="listview" class="tracks" data-theme="a" data-dividertheme="b" data-ajax="false">

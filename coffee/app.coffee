@@ -3,6 +3,7 @@
 #
 
 window.App =
+  
   activePage: ->
     $ ".ui-page-active"
 
