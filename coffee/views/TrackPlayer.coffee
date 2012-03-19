@@ -155,24 +155,18 @@ App.Views.TrackPlayer = Backbone.View.extend
         c = parseInt(b[1], 10)
         return a + c
     
-    getNextTrack: (d) ->        
-        ##console.log(d)
-        ##@handleNext(e, f)
+    getNextTrack: (action, param) ->        
+        @activeTrack = @collection[action](param)
+        if (@activeTrack)
+          @activeTrack.active = true
+          @handleNext(@activeTrack)
             
     handleNext: (b) ->
         if (b)
-          ##f = b.toJSON()
           c = @$("#jplayer")
-          ##e = f.duration
-          ##a = Math.floor(e / 60)
-          ##d = e - (a * 60)
-          ##d = (d <= 9) ? "0" + d : d
-          ##formattedDuration = (a <= 9 ? "0" : "") + a + ":" + d
-          ##$("#duration").text(formattedDuration)
-          ##$.jPlayer.convertTime
-          $(c).jPlayer("setMedia", {
-              mp3: b.getSongUrl()
-          }).jPlayer("play")
+          c.jPlayer "setMedia",
+            mp3: b.getSongUrl()
+          c.jPlayer "play"
           false
        
     handleError: (b, c) ->

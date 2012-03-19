@@ -80,6 +80,13 @@ class App.Collections.Tracks extends App.Collections.PaginatedCollection
   fetch: ->
     super { add: true }
     @
+  
+  next: ->
+    console.log @
+    @find( (track) ->
+      track.active
+    ).next()
+  
     
   initialize: (collections, options) ->
     @keyword = options.keyword
