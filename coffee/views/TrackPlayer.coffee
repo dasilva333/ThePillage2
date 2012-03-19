@@ -1,4 +1,5 @@
 App.Views.TrackPlayer = Backbone.View.extend
+
     id: "footer-container"
     isStationOwner: false
     ready: false
@@ -14,11 +15,12 @@ App.Views.TrackPlayer = Backbone.View.extend
         "click .share": "doShare"
     
     initialize: ->
-        @template = _.template($("#player-template").html())
+        _.bindAll(this, "render", "forward", "playStation", "updateVolumePopup")
+        @template = ich.player
         
         a = @
         b = false
-        _.bindAll(this, "render", "forward", "playStation", "updateVolumePopup")
+        
         ##@model = sz.app.data.Station
         ##@model.bind("change", @updateStationBox, this)
         $(":input").live("focus", ->
@@ -39,19 +41,11 @@ App.Views.TrackPlayer = Backbone.View.extend
     
     render: ->
         @volume = 0.60##sz.app.settings.get("volume")
-        $(@el).html(@template({
+        @$el.html @template(
             tracks: @model
-        }))
+        )
         @buildPlayer()
         this
-    
-    updateStationBox: (a) -> 
-        if (!a or !a.get("meta")) 
-            @$(".stopped").show()
-            return
-        
-        @$(".stopped").hide()
-        ##@$(".station").html(@detailTemplate(a))
     
     updateVolumePopup: ->
         if (@_volumePopupDisappearEvent)
@@ -66,15 +60,11 @@ App.Views.TrackPlayer = Backbone.View.extend
         d = "volume-100"
         if (b < 1)
             d = "volume-0"
-        else
-            if (b <= 33) 
-                d = "volume-33"
-            else
-                if (b <= 66)
-                    d = "volume-66"
-                
-            
-        
+        else if (b <= 33) 
+            d = "volume-33"
+        else if (b <= 66)
+            d = "volume-66"
+
         e.removeClass()
         e.addClass(d)
         $(@volumePopupID).stop().removeAttr("style").show()

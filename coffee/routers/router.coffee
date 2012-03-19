@@ -19,5 +19,14 @@ class App.Routers.Router extends Backbone.Router
     @_views[keyword] ||= new App.Views.TracksList({ el: $("#home")[0], collection: @_tracks[keyword] }).render()
     
   play: (keyword, cid) ->
-      @search(keyword).on "rendered", =>
+    @search(keyword)
+    load= =>
         App.appView.player.handleNext @_tracks[keyword].getByCid(cid)
+        App.appView.header.show()    
+    @_views[keyword].on "rendered", load
+    if (@_views[keyword]._rendered)
+      load()
+     
+
+      
+        

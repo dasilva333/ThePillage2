@@ -66,6 +66,7 @@ class App.Views.TracksList extends App.Views.ContentView
     @_trackCollectionView.render()
     App.reapplyStyles(@$el)
     @trigger "rendered"
+    @_rendered = true
     super
     @
 

@@ -1,6 +1,33 @@
 (function() {
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
+  window.App = {
+    activePage: function() {
+      return $(".ui-page-active");
+    },
+    reapplyStyles: function(el) {
+      return setTimeout(function() {
+        el.find("ul[data-role]").listview();
+        el.find("div[data-role=\"fieldcontain\"]").fieldcontain();
+        el.find("button[data-role=\"button\"]").button();
+        el.find("input,textarea").textinput();
+        el.css("min-height", "");
+        el.page();
+        return el.find(":jqmData(role=listview)").listview('refresh');
+      }, 100);
+    },
+    redirectTo: function(page) {
+      return $.mobile.changePage(page);
+    },
+    goBack: function() {
+      return $.historyBack();
+    },
+    Views: {},
+    Models: {},
+    Routers: {},
+    Collections: {}
+  };
+
   window.RemoteLogger = {
     logEvent: function() {}
   };
@@ -32,32 +59,45 @@
     });
   });
 
-  window.App = {
-    activePage: function() {
-      return $(".ui-page-active");
-    },
-    reapplyStyles: function(el) {
-      return setTimeout(function() {
-        el.find("ul[data-role]").listview();
-        el.find("div[data-role=\"fieldcontain\"]").fieldcontain();
-        el.find("button[data-role=\"button\"]").button();
-        el.find("input,textarea").textinput();
-        el.css("min-height", "");
-        el.page();
-        return el.find(":jqmData(role=listview)").listview('refresh');
-      }, 100);
-    },
-    redirectTo: function(page) {
-      return $.mobile.changePage(page);
-    },
-    goBack: function() {
-      return $.historyBack();
-    },
-    Views: {},
-    Models: {},
-    Routers: {},
-    Collections: {}
-  };
+  App.Models.Track = (function() {
+
+    __extends(Track, Backbone.Model);
+
+    function Track() {
+      Track.__super__.constructor.apply(this, arguments);
+    }
+
+    Track.prototype.getSongUrl = function() {
+      return rc4.decrypt(this.get("song_url"), "Error, this track is not valid!");
+    };
+
+    Track.prototype.getAlbumImage = function() {
+      return "images/noAlbumImage.png";
+    };
+
+    Track.prototype.getArtist = function() {
+      return this.get('artist');
+    };
+
+    Track.prototype.getTitle = function() {
+      return this.get('title');
+    };
+
+    Track.prototype.getFullName = function() {
+      return "" + (this.get('artist')) + " - " + (this.get('title')) + " ";
+    };
+
+    Track.prototype.getDurationFormatted = function() {
+      return $.jPlayer.convertTime(this.get('duration'));
+    };
+
+    Track.prototype.getTrackId = function() {
+      return this.get('trackid');
+    };
+
+    return Track;
+
+  })();
 
   App.Views.AppView = Backbone.View.extend({
     render: function() {
@@ -67,13 +107,71 @@
         arrow: "#arrow",
         items: "#nav-content"
       });
+      this.header = new App.Views.HeaderView({
+        el: this.$("#header"),
+        content: "#main"
+      }).hide();
       this.player = new App.Views.TrackPlayer({
         el: this.$("#player-container")
-      });
+      }).render();
       this.search = new App.Views.SearchView({
         el: this.$("#search-form")
       });
       return this;
+    }
+  });
+
+  App.Views.HeaderView = Backbone.View.extend({
+    initialize: function(options) {
+      this.content = $(options.content);
+      return this;
+    },
+    hide: function() {
+      this.content.css({
+        "top": 0
+      });
+      return this;
+    },
+    show: function() {
+      this.content.css({
+        "top": "88px"
+      });
+      return this;
+    }
+  });
+
+  App.Views.SidebarView = Backbone.View.extend({
+    speed: 200,
+    initialize: function() {
+      this.el = $(this.options.el);
+      this.content = $(this.options.content);
+      this.arrow = $(this.options.arrow);
+      this.items = $(this.options.items);
+      return this;
+    },
+    events: {
+      'click #collapsible-nav': 'toggle'
+    },
+    toggle: function(event, show, speed) {
+      if (show || this.items.is(":visible")) {
+        this.el.animate({
+          width: 30
+        }, speed || this.speed);
+        this.items.fadeOut(30);
+        this.arrow.switchClass('arrowLeft', 'arrowRight', 30);
+        return this.content.animate({
+          left: 31
+        }, speed || this.speed);
+      } else {
+        this.el.animate({
+          width: 155
+        }, speed || this.speed);
+        this.items.delay(170).fadeIn(100);
+        this.arrow.switchClass('arrowRight', 'arrowLeft', 30);
+        return this.content.animate({
+          left: 156
+        }, speed || this.speed);
+      }
     }
   });
 
@@ -114,10 +212,15 @@
     };
 
     Router.prototype.play = function(keyword, cid) {
+      var load;
       var _this = this;
-      return this.search(keyword).on("rendered", function() {
-        return App.appView.player.handleNext(_this._tracks[keyword].getByCid(cid));
-      });
+      this.search(keyword);
+      load = function() {
+        App.appView.player.handleNext(_this._tracks[keyword].getByCid(cid));
+        return App.appView.header.show();
+      };
+      this._views[keyword].on("rendered", load);
+      if (this._views[keyword]._rendered) return load();
     };
 
     return Router;
@@ -202,6 +305,7 @@
       this._trackCollectionView.render();
       App.reapplyStyles(this.$el);
       this.trigger("rendered");
+      this._rendered = true;
       TracksList.__super__.render.apply(this, arguments);
       return this;
     };
@@ -215,38 +319,16 @@
 
   })();
 
-  App.Views.SidebarView = Backbone.View.extend({
-    speed: 200,
-    initialize: function() {
-      this.el = $(this.options.el);
-      this.content = $(this.options.content);
-      this.arrow = $(this.options.arrow);
-      this.items = $(this.options.items);
-      return this;
-    },
+  App.Views.SearchView = Backbone.View.extend({
     events: {
-      'click #collapsible-nav': 'toggle'
+      "submit": "search"
     },
-    toggle: function(event, show, speed) {
-      if (show || this.items.is(":visible")) {
-        this.el.animate({
-          width: 30
-        }, speed || this.speed);
-        this.items.fadeOut(30);
-        this.arrow.switchClass('arrowLeft', 'arrowRight', 30);
-        return this.content.animate({
-          left: 31
-        }, speed || this.speed);
-      } else {
-        this.el.animate({
-          width: 155
-        }, speed || this.speed);
-        this.items.delay(170).fadeIn(100);
-        this.arrow.switchClass('arrowRight', 'arrowLeft', 30);
-        return this.content.animate({
-          left: 156
-        }, speed || this.speed);
-      }
+    search: function(event) {
+      App.router.navigate('#search-' + this.$el.find("input").val(), {
+        trigger: true
+      });
+      App.router.search(this.$el.find("input").val());
+      return false;
     }
   });
 
@@ -316,46 +398,6 @@
     }
   });
 
-  App.Models.Track = (function() {
-
-    __extends(Track, Backbone.Model);
-
-    function Track() {
-      Track.__super__.constructor.apply(this, arguments);
-    }
-
-    Track.prototype.getSongUrl = function() {
-      return rc4.decrypt(this.get("song_url"), "Error, this track is not valid!");
-    };
-
-    Track.prototype.getAlbumImage = function() {
-      return "images/noAlbumImage.png";
-    };
-
-    Track.prototype.getArtist = function() {
-      return this.get('artist');
-    };
-
-    Track.prototype.getTitle = function() {
-      return this.get('title');
-    };
-
-    Track.prototype.getFullName = function() {
-      return "" + (this.get('artist')) + " - " + (this.get('title')) + " ";
-    };
-
-    Track.prototype.getDurationFormatted = function() {
-      return $.jPlayer.convertTime(this.get('duration'));
-    };
-
-    Track.prototype.getTrackId = function() {
-      return this.get('trackid');
-    };
-
-    return Track;
-
-  })();
-
   App.Views.TrackView = Backbone.View.extend({
     tagName: 'li',
     initialize: function() {
@@ -384,10 +426,10 @@
     },
     initialize: function() {
       var a, b;
-      this.template = _.template($("#player-template").html());
+      _.bindAll(this, "render", "forward", "playStation", "updateVolumePopup");
+      this.template = ich.player;
       a = this;
       b = false;
-      _.bindAll(this, "render", "forward", "playStation", "updateVolumePopup");
       $(":input").live("focus", function() {
         return b = true;
       }).live("blur", function() {
@@ -406,18 +448,11 @@
     },
     render: function() {
       this.volume = 0.60;
-      $(this.el).html(this.template({
+      this.$el.html(this.template({
         tracks: this.model
       }));
       this.buildPlayer();
       return this;
-    },
-    updateStationBox: function(a) {
-      if (!a || !a.get("meta")) {
-        this.$(".stopped").show();
-        return;
-      }
-      return this.$(".stopped").hide();
     },
     updateVolumePopup: function() {
       var a, b, c, d, e, g, h;
@@ -433,12 +468,10 @@
       d = "volume-100";
       if (b < 1) {
         d = "volume-0";
-      } else {
-        if (b <= 33) {
-          d = "volume-33";
-        } else {
-          if (b <= 66) d = "volume-66";
-        }
+      } else if (b <= 33) {
+        d = "volume-33";
+      } else if (b <= 66) {
+        d = "volume-66";
       }
       e.removeClass();
       e.addClass(d);
@@ -552,19 +585,6 @@
     },
     doShare: function() {
       this.model.share();
-      return false;
-    }
-  });
-
-  App.Views.SearchView = Backbone.View.extend({
-    events: {
-      "submit": "search"
-    },
-    search: function(event) {
-      App.router.navigate('#search-' + this.$el.find("input").val(), {
-        trigger: true
-      });
-      App.router.search(this.$el.find("input").val());
       return false;
     }
   });
